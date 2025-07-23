@@ -97,7 +97,7 @@ export const create = api<ReqBody, Response>({
 
     return {
         userData,
-        authorisation: `authToken=${token}; Path=/; HttpOnly; Secure; SameSite=none; Domain=rflectBackend.onrender.com`
+        authorisation: `authToken=${token}; Path=/; HttpOnly; Secure; SameSite=none; Domain=rflectbackend.onrender.com`
     };
 
 });
@@ -140,7 +140,7 @@ export const login = api<LoginReq, Response>({
     }
     return {
         userData,
-        authorisation: `authToken=${token}; Path=/; HttpOnly; Secure; SameSite=none; Domain=rflectBackend.onrender.com`
+        authorisation: `authToken=${token}; Path=/; HttpOnly; Secure; SameSite=none; Domain=rflectbackend.onrender.com`
 
     }
 })
@@ -203,7 +203,7 @@ export const loginRaw = api.raw({
         updatedAt: find_user.updatedAt,
     };
 
-    resp.setHeader('Set-Cookie', `authToken=${token}; Path=/; HttpOnly; Secure; SameSite=none; Domain=localhost`);
+    resp.setHeader('Set-Cookie', `authToken=${token}; Path=/; HttpOnly; Secure; SameSite=none; Domain=rflectbackend.onrender.com`);
 
     // resp.statusCode = 204;
     resp.end(JSON.stringify({
