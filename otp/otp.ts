@@ -37,7 +37,9 @@ export const sendVerifyOTP = api({
         await mail.send({
             mail_addr: find_user.email,
             mail_body: otp,
-            subject: "Verification OTP for Rflect"
+            subject: "Verification OTP for Rflect",
+            head: "Please Verify your Email",
+            text: "Thank you for signing up! Use the OTP below to verify."
         });
 
         await db.insert(userOTPs).values({
@@ -214,7 +216,9 @@ export const sendResetOTP = api({
         await mail.send({
             mail_addr: find_user.email,
             mail_body: otp,
-            subject: "Reset Password OTP for Rflect"
+            subject: "Reset Password OTP for Rflect",
+            head: "Please Verify",
+            text: "You have requested to reset your password. Use the OTP below to reset your password."
         });
 
 

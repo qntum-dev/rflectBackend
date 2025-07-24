@@ -19,7 +19,8 @@ interface mailStructure {
   mail_addr: string;
   subject: string;
   mail_body: string;
-  html?: string;
+  head: string;
+  text: string;
 }
 
 // // Default Rflect registration HTML template
@@ -52,7 +53,7 @@ interface mailStructure {
 // </html>`;
 
 // Refined Rflect SaaS HTML verification template
-const htmlTemplate = (otp: string) => `
+const htmlTemplate = (header: string, text: string, otp: string) => `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -72,12 +73,12 @@ const htmlTemplate = (otp: string) => `
       </tr>
       <tr>
         <td style="font-size:22px; font-weight:600; padding-bottom:16px;">
-          Please Verify your Email
+          ${header}
         </td>
       </tr>
       <tr>
         <td style="font-size:16px; line-height:1.5; padding-bottom:24px;">
-          <p style="margin:0;">Thank you for signing up! Use the OTP below to verify.</p>
+          <p style="margin:0;">${text}</p>
         </td>
       </tr>
       <tr>
@@ -111,10 +112,10 @@ const htmlTemplate = (otp: string) => `
 // Encore export with clean structured response
 export const send = api({
   auth: false
-}, async ({ mail_addr, mail_body, subject, html }: mailStructure) => {
+}, async ({ mail_addr, mail_body, subject, head, text }: mailStructure) => {
 
   // If no HTML provided, generate a clean registration template using mail_body as OTP
-  const finalHtml = html ?? htmlTemplate(mail_body);
+  const finalHtml = htmlTemplate(head, text, mail_body);
 
   const info = await transporter.sendMail({
     from: {
