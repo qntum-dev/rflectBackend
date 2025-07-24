@@ -1,12 +1,10 @@
-# Rflect
+# Rflect Backend
 This is a chat application backend made with Encore TS.
 
 ## Prerequisites 
 
 **Install Encore:**
-- **macOS:** `brew install encoredev/tap/encore`
-- **Linux:** `curl -L https://encore.dev/install.sh | bash`
-- **Windows:** `iwr https://encore.dev/install.ps1 | iex`
+Follow this instructions https://encore.dev/docs/ts/install
   
 **Docker:**
 1. [Install Docker](https://docker.com)
