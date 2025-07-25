@@ -15,7 +15,7 @@ import cron from 'node-cron';
 
 const chatStreams: Map<
     string, // chatID
-    Map<string, StreamInOut<ReceiveMessage, SendMessage>> // userID -> stream
+    Map<string, Set<StreamInOut<ReceiveMessage, SendMessage>>> // userID -> Set of active streams
 > = new Map();
 
 const allowedUsersForSession: Map<string, [string, string]> = new Map(); // chatID -> [userA, userB]
@@ -90,67 +90,53 @@ export const getMessages = api({
 });
 
 
-
 export const privateChat = api.streamInOut<HandshakeRequest, ReceiveMessage, SendMessage>(
     { expose: true, path: "/private-chat" },
     async (handshake, stream) => {
-
         const { chatID, userID } = handshake;
 
         const allowed = allowedUsersForSession.get(chatID);
-
         if (!allowed) {
-            log.info("Chat session not found")
             await stream.send({ id: crypto.randomUUID(), senderId: "System", content: "Chat session not found", timestamp: Date.now() });
             await stream.close();
             return;
         }
 
-
-
         const [userA, userB] = allowed;
         const otherUserID = userID === userA ? userB : userA;
-        const user = await getIDdata("user", userID);
-
-        const otherUser = await getIDdata("user", otherUserID);
 
         if (![userA, userB].includes(userID)) {
             await stream.send({ id: crypto.randomUUID(), senderId: "System", content: "Unauthorized", timestamp: Date.now() });
             await stream.close();
-
             return;
         }
 
         if (!chatStreams.has(chatID)) {
             chatStreams.set(chatID, new Map());
         }
-
-        chatStreams.get(chatID)!.set(userID, stream);
-
-        log.info("User connected to chat", { userID, chatID });
+        if (!chatStreams.get(chatID)!.has(userID)) {
+            chatStreams.get(chatID)!.set(userID, new Set());
+        }
+        chatStreams.get(chatID)!.get(userID)!.add(stream);
 
         try {
             for await (const msg of stream) {
-                log.info("msg", msg)
-
-                const otherStream = chatStreams.get(chatID)?.get(otherUserID);
-
                 const chatMessage = { id: crypto.randomUUID(), senderId: userID, content: msg.message, timestamp: Date.now() };
-
                 await redis.zadd(`chat:${chatID}:messages`, 'NX', chatMessage.timestamp, JSON.stringify(chatMessage));
 
-                // if (!chatListStreams.has(otherUserID)) {
-                //     chatStreams.set(otherUserID, new Map());
-                // }
+                const senderStreams = chatStreams.get(chatID)?.get(userID) ?? new Set();
+                const receiverStreams = chatStreams.get(chatID)?.get(otherUserID) ?? new Set();
 
-                // const receiverChatlistStream = chatListStreams.get(otherUserID);
-
+                for (const s of senderStreams) {
+                    await s.send(chatMessage);
+                }
+                for (const s of receiverStreams) {
+                    await s.send(chatMessage);
+                }
 
                 const receiverChatlistStream = chatListStreams.get(otherUserID);
-
-
                 if (receiverChatlistStream) {
-
+                    const user = await getIDdata("user", userID);
                     await receiverChatlistStream.send({
                         data: {
                             chat_id: chatID,
@@ -160,24 +146,24 @@ export const privateChat = api.streamInOut<HandshakeRequest, ReceiveMessage, Sen
                             receiverName: user.name
                         },
                         noData: false
-                    })
+                    });
                 }
-                if (otherStream) {
-
-                    await otherStream.send(chatMessage);
-                }
-                await stream.send(chatMessage);
-
             }
         } catch (err) {
-            // Handle stream failure
+            // handle error if needed
         } finally {
-            chatStreams.get(chatID)?.delete(userID);
-
-
+            const userStreams = chatStreams.get(chatID)?.get(userID);
+            userStreams?.delete(stream);
+            if (userStreams?.size === 0) {
+                chatStreams.get(chatID)?.delete(userID);
+            }
+            if (chatStreams.get(chatID)?.size === 0) {
+                chatStreams.delete(chatID);
+            }
         }
     }
 );
+
 
 
 const chatListStreams: Map<string, StreamInOut<ChatListStreamReq, ChatListStreamRes>> = new Map();

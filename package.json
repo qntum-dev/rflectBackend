@@ -10,7 +10,8 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
-    "studio": "drizzle-kit studio"
+    "studio": "drizzle-kit studio",
+    "generate": "encore gen client --services=newChat --env=\"local\" -o chatClient.ts" 
   },
   "devDependencies": {
     "@types/busboy": "^1.5.4",
