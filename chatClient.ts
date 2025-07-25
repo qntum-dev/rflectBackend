@@ -10,13 +10,13 @@
  */
 export type BaseURL = string
 
-export const Local: BaseURL = "http://localhost:4000"
+export const Local: BaseURL = "https://rflectbackend.onrender.com"
 
 /**
  * Environment returns a BaseURL for calling the cloud environment with the given name.
  */
 export function Environment(name: string): BaseURL {
-    return `https://${name}-hcf4w.encr.app`
+    return `https://rflectbackend.onrender.com`
 }
 
 /**
@@ -165,62 +165,62 @@ export namespace newChat {
                 userID: params.userID,
             })
 
-            return await this.baseClient.createStreamInOut(`/chatlist/stream`, {query})
+            return await this.baseClient.createStreamInOut(`/chatlist/stream`, { query })
         }
 
         public async getChatList(params: {
-    before: string
-    limit: number
-}): Promise<ChatListRes> {
+            before: string
+            limit: number
+        }): Promise<ChatListRes> {
             // Convert our params into the objects we need for the request
             const query = makeRecord<string, string | string[]>({
                 before: params.before,
-                limit:  String(params.limit),
+                limit: String(params.limit),
             })
 
             // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/chat/getAllChats`, undefined, {query})
+            const resp = await this.baseClient.callTypedAPI("GET", `/chat/getAllChats`, undefined, { query })
             return await resp.json() as ChatListRes
         }
 
         public async getMessages(chatID: string, params: {
-    before?: string
-    limit?: string
-}): Promise<{
-    messages: SendMessage[]
-}> {
+            before?: string
+            limit?: string
+        }): Promise<{
+            messages: SendMessage[]
+        }> {
             // Convert our params into the objects we need for the request
             const query = makeRecord<string, string | string[]>({
                 before: params.before,
-                limit:  params.limit,
+                limit: params.limit,
             })
 
             // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/getMessages/${encodeURIComponent(chatID)}`, undefined, {query})
+            const resp = await this.baseClient.callTypedAPI("GET", `/getMessages/${encodeURIComponent(chatID)}`, undefined, { query })
             return await resp.json() as {
-    messages: SendMessage[]
-}
+                messages: SendMessage[]
+            }
         }
 
         public async newChat(params: NewChatRequest): Promise<{
-    "chat_id": string
-    receiverId: string
-    receiverName: string
-    type: "existing" | "new"
-}> {
+            "chat_id": string
+            receiverId: string
+            receiverName: string
+            type: "existing" | "new"
+        }> {
             // Convert our params into the objects we need for the request
             const query = makeRecord<string, string | string[]>({
                 email: params.email,
             })
 
             // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/newChat`, undefined, {query})
+            const resp = await this.baseClient.callTypedAPI("GET", `/newChat`, undefined, { query })
             return await resp.json() as {
-    "chat_id": string
-    receiverId: string
-    receiverName: string
-    type: "existing" | "new"
-}
+                "chat_id": string
+                receiverId: string
+                receiverName: string
+                type: "existing" | "new"
+            }
         }
 
         public async privateChat(params: HandshakeRequest): Promise<StreamInOut<ReceiveMessage, SendMessage>> {
@@ -230,23 +230,23 @@ export namespace newChat {
                 userID: params.userID,
             })
 
-            return await this.baseClient.createStreamInOut(`/private-chat`, {query})
+            return await this.baseClient.createStreamInOut(`/private-chat`, { query })
         }
 
         public async startChat(params: StartChatRequest): Promise<{
-    chatID: string
-    type: "new" | "existing"
-    receiverId: string
-    receiverName: string
-}> {
+            chatID: string
+            type: "new" | "existing"
+            receiverId: string
+            receiverName: string
+        }> {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("POST", `/start-chat`, JSON.stringify(params))
             return await resp.json() as {
-    chatID: string
-    type: "new" | "existing"
-    receiverId: string
-    receiverName: string
-}
+                chatID: string
+                type: "new" | "existing"
+                receiverId: string
+                receiverName: string
+            }
         }
     }
 }
@@ -256,7 +256,7 @@ export namespace newChat {
 function encodeQuery(parts: Record<string, string | string[]>): string {
     const pairs: string[] = []
     for (const key in parts) {
-        const val = (Array.isArray(parts[key]) ?  parts[key] : [parts[key]]) as string[]
+        const val = (Array.isArray(parts[key]) ? parts[key] : [parts[key]]) as string[]
         for (const v of val) {
             pairs.push(`${key}=${encodeURIComponent(v)}`)
         }
@@ -279,9 +279,9 @@ function makeRecord<K extends string | number | symbol, V>(record: Record<K, V |
 function encodeWebSocketHeaders(headers: Record<string, string>) {
     // url safe, no pad
     const base64encoded = btoa(JSON.stringify(headers))
-      .replaceAll("=", "")
-      .replaceAll("+", "-")
-      .replaceAll("/", "_");
+        .replaceAll("=", "")
+        .replaceAll("+", "-")
+        .replaceAll("/", "_");
     return "encore.dev.headers." + base64encoded;
 }
 
@@ -457,9 +457,9 @@ type CallParameters = Omit<RequestInit, "method" | "body" | "headers"> & {
 
 // AuthDataGenerator is a function that returns a new instance of the authentication data required by this API
 export type AuthDataGenerator = () =>
-  | auth.AuthParams
-  | Promise<auth.AuthParams | undefined>
-  | undefined;
+    | auth.AuthParams
+    | Promise<auth.AuthParams | undefined>
+    | undefined;
 
 // A fetcher is the prototype for the inbuilt Fetch function
 export type Fetcher = typeof fetch;
@@ -539,10 +539,10 @@ class BaseClient {
         // If we now have authentication data, add it to the request
         if (authData) {
             if (authData.query) {
-                query = {...query, ...authData.query};
+                query = { ...query, ...authData.query };
             }
             if (authData.headers) {
-                headers = {...headers, ...authData.headers};
+                headers = { ...headers, ...authData.headers };
             }
         }
 
@@ -560,10 +560,10 @@ class BaseClient {
         // If we now have authentication data, add it to the request
         if (authData) {
             if (authData.query) {
-                query = {...query, ...authData.query};
+                query = { ...query, ...authData.query };
             }
             if (authData.headers) {
-                headers = {...headers, ...authData.headers};
+                headers = { ...headers, ...authData.headers };
             }
         }
 
@@ -581,10 +581,10 @@ class BaseClient {
         // If we now have authentication data, add it to the request
         if (authData) {
             if (authData.query) {
-                query = {...query, ...authData.query};
+                query = { ...query, ...authData.query };
             }
             if (authData.headers) {
-                headers = {...headers, ...authData.headers};
+                headers = { ...headers, ...authData.headers };
             }
         }
 
@@ -611,7 +611,7 @@ class BaseClient {
         }
 
         // Merge our headers with any predefined headers
-        init.headers = {...this.headers, ...init.headers, ...headers}
+        init.headers = { ...this.headers, ...init.headers, ...headers }
 
         // Fetch auth data if there is any
         const authData = await this.getAuthData();
@@ -619,16 +619,16 @@ class BaseClient {
         // If we now have authentication data, add it to the request
         if (authData) {
             if (authData.query) {
-                query = {...query, ...authData.query};
+                query = { ...query, ...authData.query };
             }
             if (authData.headers) {
-                init.headers = {...init.headers, ...authData.headers};
+                init.headers = { ...init.headers, ...authData.headers };
             }
         }
 
         // Make the actual request
         const queryString = query ? '?' + encodeQuery(query) : ''
-        const response = await this.fetcher(this.baseURL+path+queryString, init)
+        const response = await this.fetcher(this.baseURL + path + queryString, init)
 
         // handle any error responses
         if (!response.ok) {
@@ -674,8 +674,8 @@ function isAPIErrorResponse(err: any): err is APIErrorResponse {
     return (
         err !== undefined && err !== null &&
         isErrCode(err.code) &&
-        typeof(err.message) === "string" &&
-        (err.details === undefined || err.details === null || typeof(err.details) === "object")
+        typeof (err.message) === "string" &&
+        (err.details === undefined || err.details === null || typeof (err.details) === "object")
     )
 }
 
@@ -709,8 +709,8 @@ export class APIError extends Error {
         // set error name as constructor name, make it not enumerable to keep native Error behavior
         // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/new.target#new.target_in_constructors
         Object.defineProperty(this, 'name', {
-            value:        'APIError',
-            enumerable:   false,
+            value: 'APIError',
+            enumerable: false,
             configurable: true,
         })
 

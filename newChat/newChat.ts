@@ -128,7 +128,10 @@ export const privateChat = api.streamInOut<HandshakeRequest, ReceiveMessage, Sen
                 const receiverStreams = chatStreams.get(chatID)?.get(otherUserID) ?? new Set();
 
                 for (const s of senderStreams) {
+                    console.log("Sending message to sender stream", chatMessage);
+
                     await s.send(chatMessage);
+
                 }
                 for (const s of receiverStreams) {
                     await s.send(chatMessage);
